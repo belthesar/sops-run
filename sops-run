@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser(description="Run a command with secrets decrypt
 parser.add_argument("command", nargs="+", help="Command to run")
 parser.add_argument("--create", action="store_true", help="Create a new sops-run manifest", default=False)
 parser.add_argument("--edit", action="store_true", help="Edit a sops-run manifest", default=False)
+parser.add_argument("--key", help="Path to age key to use for encryption/decryption", default=None)
 
 def find_first_age_key():
     keys = []
@@ -27,17 +28,31 @@ def find_first_age_key():
     raise FileNotFoundError(f"No age keys found in ~/.local/age")
     
 
+def get_recipient_key(key_file):
+    get_recipient_key_command = ['age-keygen', '-y', key_file]
+    get_recipient_key_command_output = list(run(get_recipient_key_command, capture_output=True, text=True).stdout.strip())
+    get_recipient_key_command_output = [item for item in get_recipient_key_command_output if item]
+    return get_recipient_key_command_output
+
+
 env = Env()
 env.read_env()
-DEFAULT_AGE_KEY_COMMAND = ['age-keygen', '-y', find_first_age_key()]
-DEFAULT_AGE_KEY_COMMAND_OUTPUT = run(DEFAULT_AGE_KEY_COMMAND, capture_output=True, text=True)
-DEFAULT_AGE_KEY_RECIPIENT = DEFAULT_AGE_KEY_COMMAND_OUTPUT.stdout.strip()
+DEFAULT_AGE_KEY_RECIPIENT = get_recipient_key(find_first_age_key())
+SOPS_AGE_KEY_FILE = env.str("SOPS_AGE_KEY", default=None)
 SOPS_AGE_RECIPIENTS = env.list("SOPS_AGE_RECIPIENTS", subcast=str, default=list(DEFAULT_AGE_KEY_RECIPIENT))
 SOPS_AGE_RECIPIENTS = [item for item in SOPS_AGE_RECIPIENTS if item] # removes empty strings from list
 
 
 def main():
     args = parser.parse_args()
+    if args.key:
+        recipient_key = get_recipient_key(args.key)
+        global SOPS_AGE_RECIPIENTS
+        SOPS_AGE_RECIPIENTS = [recipient_key]
+    if SOPS_AGE_KEY_FILE:
+        recipient_key = get_recipient_key(SOPS_AGE_KEY_FILE)
+        global SOPS_AGE_RECIPIENTS
+        SOPS_AGE_RECIPIENTS = [recipient_key]
     if args.create:
         update_manifest(args.command)
     elif args.edit:
