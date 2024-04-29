@@ -7,6 +7,7 @@ Cody Wilson <cody@codywilson.co>
 """
 import argparse
 import os
+import shutil
 from environs import Env
 from subprocess import run
 
@@ -15,6 +16,13 @@ parser.add_argument("command", nargs="+", help="Command to run")
 parser.add_argument("--create", action="store_true", help="Create a new sops-run manifest", default=False)
 parser.add_argument("--edit", action="store_true", help="Edit a sops-run manifest", default=False)
 parser.add_argument("--key", help="Path to age key to use for encryption/decryption", default=None)
+
+def check_dependencies():
+    if shutil.which("sops") is None:
+        raise FileNotFoundError("sops not found in PATH! Ensure you've installed sops and try again. See the README for more information.")
+    if shutil.which("age-keygen") is None:
+        raise FileNotFoundError("age-keygen not found in PATH! Ensure you've installed age and try again. See the README for more information.")
+
 
 def find_first_age_key():
     keys = []
@@ -25,7 +33,7 @@ def find_first_age_key():
     if keys:
         key_path = os.path.realpath(keys[0])
         return key_path
-    raise FileNotFoundError(f"No age keys found in ~/.local/age")
+    raise FileNotFoundError(f"No age keys found in ~/.local/age! Ensure you've created an age key and try again. See the README for more information.")
     
 
 def get_recipient_key(key_file):

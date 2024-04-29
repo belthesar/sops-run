@@ -1,6 +1,8 @@
 # sops-run
 A python wrapper for [sops](https://github.com/getsops/sops) to execute commands with environment variables decrypted from a sops encrypted file.
 
+Version: 0.1.0
+
 ```bash
 usage: sops-run [-h] [--create] [--edit] [--key KEY] command [command ...]
 
@@ -30,7 +32,7 @@ TODO: Add the required structure to support installation via pipx
 For now, you'll need to clone the repo, ideally set up a virtual environment and install the requirements. 
 
 ### Setup
-Currently, sops-run assumes you're using `age` as your encryption key source, though I'd like to add support for external keys in the future. To get started, you'll need to create an ace key pair. The `age` and `age-keygen` man pages are pretty great, so please look to there for the most accurate instructions on how to do this. 
+Currently, sops-run assumes you're using `age` as your encryption key source, though I'd like to add support for external keys in the future. To get started, you'll need to create an age key pair. The `age` and `age-keygen` man pages are pretty great, so please look to there for the most accurate instructions on how to do this. 
 
 sops-run expects to find your key file in `~/.local/age`, and will choose the first file it finds in that directory. If you have multiple keys, or if you'd like to specify a specific key, you can use the `--key` argument or set the `SOPS_AGE_KEY_FILE` environment variable. Note that the environment variable will take precedence over the argument.
 

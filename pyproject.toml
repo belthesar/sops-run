@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "sops-run"
+version = "0.1.0"
+description = "A python wrapper for sops to execute commands with environment variables decrypted from a sops encrypted file."
+authors = ["Cody Wilson <cody@codywilson.co>"]
+license = "GPL-3.0-only"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+environs = "^11.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
